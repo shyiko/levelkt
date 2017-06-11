@@ -76,7 +76,7 @@ fun main(args: Array<String>) {
 
 #### Java 8+
 
-> `com.github.shyiko:levelkt` with `kalvanized` classifier is identical to the regular `com.github.shyiko:levelkt`
+> `com.github.shyiko.levelkt:levelkt` with `kalvanized` classifier is identical to the regular `com.github.shyiko.levelkt:levelkt`
   except that you don't need `org.jetbrains.kotlin:kotlin-stdlib` (or its transitive dependencies).
 
 ```xml
