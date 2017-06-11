@@ -220,7 +220,6 @@
                         # publish a new version
                         ./mvnw versions:set -DnewVersion=&lt;version&gt;
                         ./mvnw -Ddeploy=maven-central
-                        ./mvnw -Ddeploy=maven-central -Pkalvanize
                         ./mvnw -Ddeploy=github-release-notes -N
                     </usage>
                 </configuration>
@@ -243,6 +242,12 @@
     <profiles>
         <profile>
             <id>kalvanize</id>
+            <activation>
+                <property>
+                    <name>deploy</name>
+                    <value>maven-central</value>
+                </property>
+            </activation>
             <dependencies>
                 <dependency>
                     <groupId>org.jetbrains.kotlin</groupId>
@@ -259,12 +264,44 @@
                         <version>3.0.0</version>
                         <executions>
                             <execution>
+                                <id>exclude-kotlin-stdlib</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>shade</goal>
                                 </goals>
                                 <configuration>
                                     <dependencyReducedPomLocation>${basedir}/target/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+                                    <artifactSet>
+                                        <includes>
+                                            <include>org.jetbrains.kotlin:kotlin-stdlib</include>
+                                            <include>org.jetbrains:annotations</include>
+                                        </includes>
+                                    </artifactSet>
+                                    <filters>
+                                        <filter>
+                                            <artifact>org.jetbrains.kotlin:kotlin-stdlib</artifact>
+                                            <excludes>
+                                                <exclude>**</exclude>
+                                            </excludes>
+                                        </filter>
+                                        <filter>
+                                            <artifact>org.jetbrains:annotations</artifact>
+                                            <excludes>
+                                                <exclude>**</exclude>
+                                            </excludes>
+                                        </filter>
+                                    </filters>
+                                    <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>kalvanize</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                                <configuration>
+                                    <dependencyReducedPomLocation>${basedir}/target/kalvanized-dependency-reduced-pom.xml</dependencyReducedPomLocation>
                                     <artifactSet>
                                         <includes>
                                             <include>org.jetbrains.kotlin:kotlin-stdlib</include>
@@ -299,7 +336,7 @@
                                             <shadedPattern>com.github.shyiko.levelkt.kalvanization.org.jetbrains</shadedPattern>
                                         </relocation>
                                     </relocations>
-                                    <!--<shadedArtifactAttached>true</shadedArtifactAttached>-->
+                                    <shadedArtifactAttached>true</shadedArtifactAttached>
                                     <shadedClassifierName>kalvanized</shadedClassifierName>
                                     <minimizeJar>true</minimizeJar>
                                 </configuration>
@@ -342,8 +379,7 @@
                         <configuration>
                             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                             <serverId>maven-central</serverId>
-                            <stagingRepositoryId>levelkt-${project.version}</stagingRepositoryId>
-                            <!--<skipStagingRepositoryClose>false</skipStagingRepositoryClose>-->
+                            <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
                             <!--<autoReleaseAfterClose>true</autoReleaseAfterClose>-->
                         </configuration>
                     </plugin>
