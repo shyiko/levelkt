@@ -91,6 +91,7 @@ fun main(args: Array<String>) {
 > Main.java
 
 ```java
+import com.github.shyiko.levelkt.LevelDB;
 import com.github.shyiko.levelkt.jna.JNALevelDB;
 
 public class Main {
