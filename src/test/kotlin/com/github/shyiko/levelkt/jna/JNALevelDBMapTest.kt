@@ -9,7 +9,7 @@ class JNALevelDBMapTest {
 
     private fun openLevelDBMap() = object : LevelDBMap<String, String>(
         Files.createTempDirectory("levelkt-jna-map-test-")
-    ){
+    ) {
         override fun serializeKey(obj: String): ByteArray = obj.toByteArray()
         override fun serializeValue(obj: String): ByteArray = obj.toByteArray()
         override fun deserializeKey(obj: ByteArray): String = String(obj)
@@ -212,7 +212,7 @@ class JNALevelDBMapTest {
             levelDBMap.putAll(content)
 
             val entries = levelDBMap.entries
-            
+
             assertThat(entries.size == 4).isTrue()
             assertThat(entries.associate { Pair(it.key, it.value) } == content).isTrue()
         }
