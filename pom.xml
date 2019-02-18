@@ -5,7 +5,7 @@
 
     <groupId>com.github.shyiko.levelkt</groupId>
     <artifactId>levelkt</artifactId>
-    <version>0.0.0-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
 
     <name>levelkt</name>
     <description>LevelDB client for Kotlin and/or Java 8+</description>
