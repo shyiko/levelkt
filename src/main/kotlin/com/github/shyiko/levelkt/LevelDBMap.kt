@@ -76,10 +76,16 @@ abstract class LevelDBMap<K, V>(private val db: JNALevelDB) : MutableMap<K, V>, 
 
             val key = deserializeKey(element)
 
-            if (this[key] == value) return true
+            if (this[key] == value) {
+
+                cursor.close()
+                return true
+            }
 
             element = cursor.next()
         }
+
+        cursor.close()
 
         return false
     }
@@ -100,16 +106,19 @@ abstract class LevelDBMap<K, V>(private val db: JNALevelDB) : MutableMap<K, V>, 
     override val entries: MutableSet<MutableMap.MutableEntry<K, V>> get() {
 
         val entries = mutableSetOf<MutableMap.MutableEntry<K, V>>()
-        val cursor = this.db.keyCursor()
-        var element = cursor.next()
 
-        while (element != null) {
+        this.db.keyCursor().use { cursor ->
 
-            val key = deserializeKey(element)
+            var element = cursor.next()
 
-            entries.add(MutableEntry(key, this[key]!!))
+            while (element != null) {
 
-            element = cursor.next()
+                val key = deserializeKey(element)
+
+                entries.add(MutableEntry(key, this[key]!!))
+
+                element = cursor.next()
+            }
         }
 
         return entries
@@ -120,10 +129,11 @@ abstract class LevelDBMap<K, V>(private val db: JNALevelDB) : MutableMap<K, V>, 
      */
     override val size: Int get() {
 
-        val cursor = this.db.keyCursor()
         var counter = 0
 
-        while (cursor.next() != null) counter++
+        this.db.keyCursor().use { cursor ->
+            while (cursor.next() != null) counter++
+        }
 
         return counter
     }
@@ -134,12 +144,14 @@ abstract class LevelDBMap<K, V>(private val db: JNALevelDB) : MutableMap<K, V>, 
     override val keys: MutableSet<K> get() {
 
         val keys = mutableSetOf<K>()
-        val cursor = this.db.keyCursor()
-        var element = cursor.next()
 
-        while (element != null) {
-            keys.add(deserializeKey(element))
-            element = cursor.next()
+        this.db.keyCursor().use { cursor ->
+            var element = cursor.next()
+
+            while (element != null) {
+                keys.add(deserializeKey(element))
+                element = cursor.next()
+            }
         }
 
         return keys
@@ -151,16 +163,18 @@ abstract class LevelDBMap<K, V>(private val db: JNALevelDB) : MutableMap<K, V>, 
     override val values: MutableCollection<V> get() {
 
         val values = mutableListOf<V>()
-        val cursor = this.db.keyCursor()
-        var element = cursor.next()
 
-        while (element != null) {
+        this.db.keyCursor().use { cursor ->
+            var element = cursor.next()
 
-            val key = deserializeKey(element)
+            while (element != null) {
 
-            values.add(this[key]!!)
+                val key = deserializeKey(element)
 
-            element = cursor.next()
+                values.add(this[key]!!)
+
+                element = cursor.next()
+            }
         }
 
         return values
@@ -171,12 +185,13 @@ abstract class LevelDBMap<K, V>(private val db: JNALevelDB) : MutableMap<K, V>, 
      */
     override fun clear() {
 
-        val cursor = this.db.keyCursor()
-        var key = cursor.next()
+        this.db.keyCursor().use { cursor ->
+            var key = cursor.next()
 
-        while (key != null) {
-            this.db.del(key)
-            key = cursor.next()
+            while (key != null) {
+                this.db.del(key)
+                key = cursor.next()
+            }
         }
     }
 
