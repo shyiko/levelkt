@@ -98,7 +98,7 @@ abstract class LevelDBMap<K, V>(private val db: JNALevelDB) : MutableMap<K, V>, 
     /**
      * Returns `true` if the map is empty (contains no elements), `false` otherwise.
      */
-    override fun isEmpty(): Boolean = this.db.keyCursor().first() == null
+    override fun isEmpty(): Boolean = this.db.keyCursor().use { it.first() == null }
 
     /**
      * Returns a [MutableSet] of all key/value pairs in this map.
